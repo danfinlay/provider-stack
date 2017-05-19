@@ -58,3 +58,38 @@ test('a param mutating subprovider', function (t) {
     t.ok(false, reason)
   })
 })
+
+test('a response mutating subprovider', function (t) {
+  const success = 'success!'
+  const failure = 'failure!'
+
+  const mutator = {
+    handleRequest (params, next) {
+      return next()
+      .then((response) => {
+        response.value = success
+        return Promise.resolve(response)
+      })
+    }
+  }
+
+  const responder = {
+    handleRequest (params, next) {
+      return Promise.resolve(failure)
+    }
+  }
+
+  const stack = new ProviderStack()
+  stack.push(mutator)
+  stack.push(responder)
+
+  stack.handleRequest({ value: 1 })
+  .then((response) => {
+    t.equal(response, success, 'returns success')
+    t.end()
+  })
+  .catch((reason) => {
+    t.ok(false, reason)
+  })
+})
+

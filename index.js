@@ -10,10 +10,10 @@ class ProviderStack {
 
   async handleRequest (params) {
     let subprovider, response
-    const providerGen = this.createStack()
-    const postProcesses = []
+    const preprocessor = this.preprocessorGen()
+    const postprocessor = this.postprocessorGen()
 
-    subprovider = providerGen.next()
+    subprovider = preprocessor.next()
     while (!subprovider.done) {
       const result = await subprovider.value.handleRequest(params)
 
@@ -21,13 +21,22 @@ class ProviderStack {
         return result
       }
 
-      subprovider = providerGen.next()
+      subprovider = preprocessor.next()
     }
   }
 
-  *createStack () {
+  *preprocessorGen () {
     for (let i = 0; i < this.subproviders.length; i++) {
       yield this.subproviders[i]
+    }
+  }
+
+  *postprocessorGen () {
+    const postProcessors = []
+    let postProcess = yield
+
+    while (postProcess) {
+      postProcess.push(postProcess)
     }
   }
 
